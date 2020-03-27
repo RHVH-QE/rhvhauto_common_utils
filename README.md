@@ -59,7 +59,7 @@ a simple ovirt-sdk4 wrapper
 - [x] remove host
 - [x] check_update_available
 - [x] upgrade_host
-- [ ] update_network
+- [x] update_network
 - [ ] add_plain_storage_domain
 - [ ] remove_storage_domain
 - [x] create_vm_from_tpl

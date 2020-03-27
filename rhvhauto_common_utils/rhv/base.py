@@ -21,6 +21,7 @@ class BaseRhvAPI:
         self.hosts_srv = self.conn.system_service().hosts_service()
         self.vms_srv = self.conn.system_service().vms_service()
         self.sds_srv = self.conn.system_service().storage_domains_service()
+        self.nws_srv = self.conn.system_service().networks_service()
 
         self.cluster_lv_srv = self.conn.system_service().cluster_levels_service()
 
@@ -230,3 +231,23 @@ class BaseRhvAPI:
         sd_id = self.find_nfs_storage(name)
         sd = self.sds_srv.storage_domain_service(sd_id)
         sd.remove(host=kwargs.get('host_name'), format=True)
+
+    # =========================================================
+    # ================ Network Operations =====================
+    # =========================================================
+    def add_network(self, name: str, dc_name: str):
+        return self.nws_srv.add(
+            name,
+            types.DataCenter(name=dc_name)
+        )
+
+    def find_network(self, name: str):
+        results = self.nws_srv.list(search=f"name={name}")
+        if len(results) != 1:
+            raise RuntimeError(f"can't find network {name}")
+        return results[0].id
+
+    def update_network(self, name: str, **kwargs):
+        nw_id = self.find_network(name)
+        nw = self.nws_srv.network_service(nw_id)
+        return nw.update(types.Network(vlan=kwargs.get("vlan_id"), id=nw_id))
