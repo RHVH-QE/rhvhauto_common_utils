@@ -42,7 +42,7 @@ class BaseRhvAPI:
             dc = self.dcs_srv.add(types.DataCenter(
                 name=name,
                 local=kwargs.get('local')
-            ), wait=kwargs.get('wait'))
+            ), wait=True)
             return dc.id
         except sdk.Error as e:
             if 'already in use' in e.fault.detail:
@@ -82,7 +82,7 @@ class BaseRhvAPI:
                     data_center=types.DataCenter(
                         name=kwargs.get('data_center_name')
                     )
-                ), wait=kwargs.get('wait')
+                ), wait=True
             )
             return cluster.id
         except sdk.Error as e:
@@ -97,7 +97,7 @@ class BaseRhvAPI:
     def del_cluster(self, name: str):
         cluster_id = self.find_cluster(name)
         cluster = self.clusters_srv.cluster_service(cluster_id)
-        cluster.remove(wait=True)
+        return cluster.remove(wait=True)
 
     def cluster_supported_cpu_types(self, level: str) -> list:
         clv = self.cluster_lv_srv.level_service(level)
@@ -117,19 +117,21 @@ class BaseRhvAPI:
                 ),
             ),
             deploy_hosted_engine=kwargs.get('deploy_hosted_engine'),
-            wait=kwargs.get('wait')
+            wait=True
         )
         # wait till host is up
         host_srv = self.hosts_srv.host_service(host.id)
+        begin = time.time()
         while True:
-            time.sleep(5)
+            time.sleep(10)
             host = host_srv.get()
+            print(f"waiting for host {name} up, {time.time() - begin}")
             if host.status == types.HostStatus.UP:
                 break
         return host.id
 
     def find_host(self, name: str) -> str:
-        results = self.hosts_srv.list(query=f"name={name}")
+        results = self.hosts_srv.list(search=f"name={name}")
         if len(results) != 1:
             raise RuntimeError(f"can't find host {name}")
         return results[0].id
@@ -145,6 +147,7 @@ class BaseRhvAPI:
         return host.activate()
 
     def deactivate_host(self, name: str):
+        """Deactivates the host to perform maintenance tasks"""
         host_id = self.find_host(name)
         host = self.hosts_srv.host_service(host_id)
         return host.deactivate()
