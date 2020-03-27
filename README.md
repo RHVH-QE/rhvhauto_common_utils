@@ -6,19 +6,33 @@
 
 use `poetry` for dependency management and packaging
 
-### Installation
+### For dev
+
+install poetry
 
 ```
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ```
 
-### Easy Start
+and
 
 ```
 $> poetry install && poetry shell
 ```
 
 for detail usage, please see [Document](https://python-poetry.org/docs/)
+
+### Add this package to your project
+
+```
+$> poetry add rhvhauto-common-utils
+```
+
+or
+
+```
+$> pip install rhvhauto-common-utils
+```
 
 ## common_utils/rhv
 
