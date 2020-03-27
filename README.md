@@ -8,13 +8,15 @@ use `poetry` for dependency management and packaging
 
 ### For dev
 
-install poetry
+- install poetry
 
 ```
 curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ```
 
-and
+- then follow the [Document](https://python-poetry.org/docs/) for next setup
+
+- cd to $PROJECT root
 
 ```
 $> poetry install && poetry shell
@@ -22,7 +24,7 @@ $> poetry install && poetry shell
 
 for detail usage, please see [Document](https://python-poetry.org/docs/)
 
-### Add this package to your project
+### use this package for other project
 
 ```
 $> poetry add rhvhauto-common-utils
