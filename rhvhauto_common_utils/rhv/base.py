@@ -33,7 +33,7 @@ class BaseRhvAPI:
     # =========================================================
     # ================ Data Center Operations =================
     # =========================================================
-    def add_data_center(self, name, **kwargs) -> str:
+    def add_data_center(self, name, **kwargs):
         """create datacenter with local storage, and wait for the reponse
         >>> api = BaseRhvAPI("https://fqdn/ovirt-engine/api")
         >>> api.add_data_center("dc_name", local=True, wait=True)
@@ -174,7 +174,8 @@ class BaseRhvAPI:
             template=types.Template(
                 name=kwargs.get("template_name")
             )
-        ), wait=kwargs.get('wait'))
+        ), wait=True)
+        return vm
 
     def find_vm(self, name: str):
         results = self.vms_srv.list(search=f"name={name}")
@@ -183,15 +184,46 @@ class BaseRhvAPI:
         return results[0].id
 
     def start_vm(self, name: str):
-        self.find_vm(name)
+        """start a vm, for easy testing, boot from CDROM only"""
+
         vm_id = self.find_vm(name)
-        vm = self.vms_srv.vm_service(vm_id)
-        return vm.start()
+        vm_srv = self.vms_srv.vm_service(vm_id)
+        vm_srv.start(vm=types.Vm(
+            os=types.OperatingSystem(
+                boot=types.Boot(
+                    devices=[
+                        types.BootDevice.CDROM,
+                        types.BootDevice.NETWORK
+                    ]
+                )
+            )
+        ))
+
+        while True:
+            time.sleep(5)
+            vm = vm_srv.get()
+            print(f"wait for vm:{name} up")
+            if vm.status == types.VmStatus.UP:
+                print(f"vm:{name} is up")
+                break
+
+    def stop_vm(self, name: str):
+        vm_id = self.find_vm(name)
+        vm_srv = self.vms_srv.vm_service(vm_id)
+        vm_srv.stop()
+
+        while True:
+            time.sleep(5)
+            vm = vm_srv.get()
+            print(f"wait for vm:{name} down")
+            if vm.status == types.VmStatus.DOWN:
+                print(f"vm:{name} is down")
+                break
 
     def del_vm(self, name: str):
         vm_id = self.find_vm(name)
         vm = self.vms_srv.vm_service(vm_id)
-        vm.remove(force=True)
+        return vm.remove(force=True)
 
     def migrate_vm(self, vm_name: str, host_name: str):
         vm_id = self.find_vm(vm_name)
@@ -202,6 +234,7 @@ class BaseRhvAPI:
     # ================ Storage Operations =====================
     # =========================================================
     def add_nfs_storage(self, name: str, **kwargs):
+        """this method add nfs storage in UNATTACHED status"""
         sd = self.sds_srv.add(
             types.StorageDomain(
                 name=name,
@@ -213,15 +246,43 @@ class BaseRhvAPI:
                     type=types.StorageType.NFS,
                     address=kwargs.get('nfs_address'),
                     path=kwargs.get('nfs_path'),
-                ),
+                )
             ),
         )
 
         sd_service = self.sds_srv.storage_domain_service(sd.id)
+        now = time.time()
         while True:
             time.sleep(5)
             sd = sd_service.get()
+            print(f"wait for NFS storage ready, {time.time() - now}")
             if sd.status == types.StorageDomainStatus.UNATTACHED:
+                break
+
+        print(f"start to attach storage:{name} to data-center:{kwargs.get('dc_name')}")
+        self.attach_storage_to_data_center(name, kwargs.get('dc_name'))
+
+    def attach_storage_to_data_center(self, storage_name: str, data_center_name: str):
+        """attach unattached storage to specific datacenter"""
+
+        sd_id = self.find_nfs_storage(storage_name)
+        dc_id = self.find_data_center(data_center_name)
+        dc = self.dcs_srv.data_center_service(dc_id)
+
+        attached_sds_service = dc.storage_domains_service()
+        attached_sds_service.add(
+            types.StorageDomain(
+                id=sd_id
+            )
+        )
+
+        attached_sd_service = attached_sds_service.storage_domain_service(sd_id)
+        now = time.time()
+        while True:
+            time.sleep(10)
+            print(f"wait for storage:{storage_name} UP -- {time.time() - now}")
+            sd = attached_sd_service.get()
+            if sd.status == types.StorageDomainStatus.ACTIVE:
                 break
 
     def find_nfs_storage(self, name):
