@@ -74,3 +74,52 @@ a simple ovirt-sdk4 wrapper
 - [x] migrate_vm(self, vm_name)
 
 </details>
+
+## Examples
+
+<details>
+<summary>Basic Usage</summary>
+
+```python
+from rhvhauto_common_utils.rhv.base import BaseRhvAPI
+
+if __name__ == '__main__':
+    url = "https://FQDN/ovirt-engine/api"
+    api = BaseRhvAPI(url)
+
+    ret = api.add_data_center("atv_dc_01", local=False, wait=True)
+    print(ret)
+
+    ret = api.del_data_center("atv_dc_01")
+    print(ret)
+
+    ret = api.add_cluster(
+        "atv_cl_01",
+        data_center_name="atv_dc_01",
+        cpu_type="Intel Skylake Server Family"
+    )
+    print(ret)
+
+    ret = api.del_cluster("atv_cl_03")
+    print(ret)
+
+    ret = api.add_host(
+        "atv_host_01",
+        address="10.73.73.69",
+        root_password="redhat",
+        cluster_name="atv_cl_01",
+        deploy_hosted_engine=False
+    )
+    print(ret)
+
+    ret = api.deactivate_host("atv_host_01")
+    print(ret)
+
+    ret = api.activate_host("atv_host_01")
+    print(ret)
+
+    ret = api.check_upgrade_available_host("atv_host_01")
+    print()
+```
+
+</details>
