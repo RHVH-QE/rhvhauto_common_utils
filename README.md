@@ -8,6 +8,12 @@ use `poetry` for dependency management and packaging
 
 ### For dev
 
+- install dependencies
+
+```
+dnf install -y python3-devel libcurl-devel libxml-devel libxslt-devel
+```
+
 - install poetry
 
 ```
