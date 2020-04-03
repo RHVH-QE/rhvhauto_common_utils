@@ -228,9 +228,19 @@ class BaseRhvAPI:
     def migrate_vm(self, vm_name: str, host_name: str):
         vm_id = self.find_vm(vm_name)
         vm = self.vms_srv.vm_service(vm_id)
-        vm.migrate(host=host_name)
+        vm.migrate(host=types.Host(name=host_name))
 
-    # =========================================================
+        while True:
+            time.sleep(5)
+            if vm.status == types.VmStatus.MIGRATING:
+                print(f"vm:{vm_name} is migrating")
+                continue
+            if vm.status == types.VmStatus.UP:
+                print(f"vm:{vm_name} is UP, migrating done")
+                break
+
+        # =========================================================
+
     # ================ Storage Operations =====================
     # =========================================================
     def add_nfs_storage(self, name: str, **kwargs):
