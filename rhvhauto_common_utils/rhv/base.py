@@ -162,6 +162,11 @@ class BaseRhvAPI:
         host = self.hosts_srv.host_service(host_id)
         return host.upgrade(timeout=kwargs.get('timeout'))
 
+    def current_host_status(self, name: str) -> str:
+        host_id = self.find_host(name)
+        host = self.hosts_srv.host_service(host_id)
+        return host.status
+
     # =========================================================
     # ================ Virtual Machine Operations =============
     # =========================================================
