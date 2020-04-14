@@ -164,7 +164,7 @@ class BaseRhvAPI:
 
     def current_host_status(self, name: str) -> str:
         host_id = self.find_host(name)
-        host = self.hosts_srv.host_service(host_id)
+        host = self.hosts_srv.host_service(host_id).get()
         return host.status
 
     # =========================================================
