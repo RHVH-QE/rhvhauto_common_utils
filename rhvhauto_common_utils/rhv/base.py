@@ -22,6 +22,7 @@ class BaseRhvAPI:
         self.vms_srv = self.conn.system_service().vms_service()
         self.sds_srv = self.conn.system_service().storage_domains_service()
         self.nws_srv = self.conn.system_service().networks_service()
+        self.events_srv = self.conn.system_service().events_service()
 
         self.cluster_lv_srv = self.conn.system_service().cluster_levels_service()
 
@@ -152,15 +153,36 @@ class BaseRhvAPI:
         host = self.hosts_srv.host_service(host_id)
         return host.deactivate()
 
-    def check_upgrade_available_host(self, name: str):
-        host_id = self.find_host(name)
-        host = self.hosts_srv.host_service(host_id)
-        return host.upgrade_check()
-
     def upgrade_host(self, name: str, **kwargs):
         host_id = self.find_host(name)
-        host = self.hosts_srv.host_service(host_id)
-        return host.upgrade(timeout=kwargs.get('timeout'))
+        host = self.hosts_srv.list(search=f"name={name}")[0]
+        host_srv = self.hosts_srv.host_service(host_id)
+
+        if not host.update_available:
+            host_srv.upgrade_check()
+
+            last_event = self.events_srv.list(max=1)[0]
+            timeout = 300
+            while timeout > 0:
+                events = [
+                    event.code for event in self.events_srv.list(
+                        from_=int(last_event.id),
+                        search='host.name=%s' % host.name,
+                    )
+                ]
+                if 839 in events or 887 in events:
+                    print(f"Check for host {name} upgrade failed.")
+                    break
+                if 885 in events:
+                    print(f"Check for host {name} upgrade done.")
+                    break
+                time.sleep(2)
+                timeout = timeout - 2
+
+        host = host_srv.get()
+        if host.update_available:
+            print(f"Host {name} start upgrading")
+            host_srv.upgrade()
 
     def current_host_status(self, name: str) -> str:
         host_id = self.find_host(name)
