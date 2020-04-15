@@ -319,13 +319,25 @@ class BaseRhvAPI:
             types.DataCenter(name=dc_name)
         )
 
-    def find_network(self, name: str):
-        results = self.nws_srv.list(search=f"name={name}")
-        if len(results) != 1:
-            raise RuntimeError(f"can't find network {name}")
-        return results[0].id
+    def find_network(self, dc_name: str, nw_name: str):
+        dc_id = self.find_data_center(dc_name)
+        dc_srv = self.dcs_srv.data_center_service(dc_id)
+        nw_srvs = dc_srv.networks_service()
+        networks = nw_srvs.list(search=f"name={nw_name}")
 
-    def update_network(self, name: str, **kwargs):
-        nw_id = self.find_network(name)
+        if len(networks) != 1:
+            raise RuntimeError("can't find network")
+        return networks[0].id
+
+    def update_network(self,
+                       dc_name: str,
+                       nw_name: str = "ovirtmgmt",
+                       vlan_id: str = "50", **kwargs):
+
+        vlan = types.Vlan(id=vlan_id)
+
+        nw_id = self.find_network(dc_name, nw_name=nw_name)
         nw = self.nws_srv.network_service(nw_id)
-        return nw.update(types.Network(vlan=kwargs.get("vlan_id"), id=nw_id))
+        return nw.update(types.Network(
+            vlan=vlan,
+            id=nw_id))
