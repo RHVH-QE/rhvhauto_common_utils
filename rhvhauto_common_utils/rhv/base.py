@@ -153,6 +153,18 @@ class BaseRhvAPI:
         host = self.hosts_srv.host_service(host_id)
         return host.deactivate()
 
+    def check_host_upgrade(self, name: str) -> bool:
+        host_id = self.find_host(name)
+        host_srv = self.hosts_srv.host_service(host_id)
+        host = host_srv.get()
+
+        if host.update_available:
+            print(f"Host {name} has update")
+            return True
+        else:
+            print(f"Host {name} has no update")
+            return False
+
     def upgrade_host(self, name: str, **kwargs):
         host_id = self.find_host(name)
         host = self.hosts_srv.list(search=f"name={name}")[0]
