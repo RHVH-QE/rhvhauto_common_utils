@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rhvhauto-common-utils"
-version = "0.1.10"
+version = "0.1.11"
 description = "common utils for rhvh auto project"
 authors = ["dracher <dracher@gmail.com>"]
 readme = 'README.md'

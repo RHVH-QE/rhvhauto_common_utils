@@ -121,11 +121,18 @@ if __name__ == '__main__':
     ret = api.deactivate_host("atv_host_01")
     print(ret)
 
-    ret = api.activate_host("atv_host_01")
+    ret = api.activate_host('atv_host_01')
     print(ret)
-
-    ret = api.check_upgrade_available_host("atv_host_01")
-    print()
+    
+    ret = api.add_iscsi_storage("name",
+                                data_center_name="dc_name",
+                                host_name="host_name",
+                                lun_id="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                                address="0.0.0.0",
+                                target="iqn.xxxxxxx:xxxx.xxxxxx.xxxxx",
+                                port=3260)
+    print(ret)
+    
 ```
 
 </details>

@@ -279,8 +279,8 @@ class BaseRhvAPI:
                 print(f"vm:{vm_name} is UP, migrating done")
                 break
 
-    # ================ Storage Operations =====================
-    # =========================================================
+    # ================ NFS Storage Operations =====================
+    # =============================================================
     def add_nfs_storage(self, name: str, **kwargs):
         """this method add nfs storage in UNATTACHED status"""
         sd = self.sds_srv.add(
@@ -343,6 +343,56 @@ class BaseRhvAPI:
         sd_id = self.find_nfs_storage(name)
         sd = self.sds_srv.storage_domain_service(sd_id)
         sd.remove(host=kwargs.get('host_name'), format=True)
+
+    # ================ iSCSI Storage Operations =====================
+    # =============================================================
+    def add_iscsi_storage(self, name, **kwargs):
+        sd = self.sds_srv.add(
+            types.StorageDomain(
+                name=name,
+                description="iSCSI without discard after delete",
+                type=types.StorageDomainType.DATA,
+                discard_after_delete=False,
+                data_center=types.DataCenter(name=kwargs.get("data_center_name")),
+                host=types.Host(name=kwargs.get("host_name")),
+                storage_format=types.StorageFormat.V5,
+                storage=types.HostStorage(
+                    type=types.StorageType.ISCSI,
+                    override_luns=True,
+                    volume_group=types.VolumeGroup(
+                        logical_units=[
+                            types.LogicalUnit(
+                                id=kwargs.get("lun_id"),
+                                address=kwargs.get("address"),
+                                port=kwargs.get("port"),
+                                target=kwargs.get("target")
+                            )
+                        ]
+                    )
+                )
+            )
+        )
+
+        dc = self.dcs_srv.list(search=f"name={kwargs.get('data_center_name')}")[0]
+        dc_srv = self.dcs_srv.data_center_service(dc.id)
+
+        attached_sds_service = dc_srv.storage_domains_service()
+
+        attached_sds_service.add(
+            types.StorageDomain(
+                id=sd.id,
+            ),
+        )
+
+        attached_sd_service = attached_sds_service.storage_domain_service(sd.id)
+
+        now = time.time()
+        while True:
+            time.sleep(10)
+            sd = attached_sd_service.get()
+            print(f"wait for iSCSI storage up, {time.time() - now}")
+            if sd.status == types.StorageDomainStatus.ACTIVE:
+                break
 
     # =========================================================
     # ================ Network Operations =====================
