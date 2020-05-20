@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rhvhauto-common-utils"
-version = "0.1.12"
+version = "0.1.13"
 description = "common utils for rhvh auto project"
 authors = ["dracher <dracher@gmail.com>"]
 readme = 'README.md'
@@ -11,6 +11,7 @@ python = "^3.7"
 ovirt-engine-sdk-python="^4.4.1"
 tomlkit = "^0.6.0"
 mako = "^1.1.2"
+rhvhauto-configs = {git = "ssh://git@github.com/RHVH-QE/rhvhauto-configs.git"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

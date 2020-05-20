@@ -82,7 +82,8 @@ class BaseRhvAPI:
                     ),
                     data_center=types.DataCenter(
                         name=kwargs.get('data_center_name')
-                    )
+                    ),
+                    management_network=types.Network(name=kwargs.get("nw_name", "ovirtmgmt"))
                 ), wait=True
             )
             return cluster.id
@@ -397,10 +398,17 @@ class BaseRhvAPI:
     # =========================================================
     # ================ Network Operations =====================
     # =========================================================
-    def add_network(self, name: str, dc_name: str):
+    def add_network(self, name: str, dc_name: str, **kwargs):
         return self.nws_srv.add(
-            name,
-            types.DataCenter(name=dc_name)
+            network=types.Network(
+                name=name,
+                data_center=types.DataCenter(
+                    name=dc_name
+                ),
+                vlan=types.Vlan(id=kwargs.get("vlan_id")),
+                usages=[types.NetworkUsage.VM],
+                mtu=1500,
+            )
         )
 
     def find_network(self, dc_name: str, nw_name: str):

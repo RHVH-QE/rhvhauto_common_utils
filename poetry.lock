@@ -169,6 +169,21 @@ testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xm
 
 [[package]]
 category = "main"
+description = ""
+name = "rhvhauto-configs"
+optional = false
+python-versions = "^3.7"
+version = "0.1.0"
+
+[package.dependencies]
+tomlkit = "^0.6.0"
+
+[package.source]
+reference = "c63d862d7591a9a48816b5efdae87e18697526b8"
+type = "git"
+url = "ssh://git@github.com/RHVH-QE/rhvhauto-configs.git"
+[[package]]
+category = "main"
 description = "Python 2 and 3 compatibility utilities"
 name = "six"
 optional = false
@@ -205,7 +220,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "581b6be30371a4df39561d2fc433ff17ce9155c03a325ab7328f35bab9581744"
+content-hash = "8b1a304302c4c15a9a318a710799bc4595aee298c3992943dc0fe27d74b2358b"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -310,6 +325,7 @@ pytest = [
     {file = "pytest-5.4.1-py3-none-any.whl", hash = "sha256:0e5b30f5cb04e887b91b1ee519fa3d89049595f428c1db76e73bd7f17b09b172"},
     {file = "pytest-5.4.1.tar.gz", hash = "sha256:84dde37075b8805f3d1f392cc47e38a0e59518fb46a431cfdaf7cf1ce805f970"},
 ]
+rhvhauto-configs = []
 six = [
     {file = "six-1.14.0-py2.py3-none-any.whl", hash = "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"},
     {file = "six-1.14.0.tar.gz", hash = "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"},

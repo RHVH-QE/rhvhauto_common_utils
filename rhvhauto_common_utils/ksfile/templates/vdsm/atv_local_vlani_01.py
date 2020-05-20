@@ -1,6 +1,6 @@
-NAME = "atv_local-vlani_01.ks"
+NAME = "atv_local_vlan.ks"
 
-HOST = ("dell-per515-01",)
+HOST = ("dell-per740-16",)
 
 VARS = dict(
     network="--device=em2 --bootproto=dhcp",
