@@ -1,5 +1,20 @@
 import copy
+import http.client
 import xmlrpc.client
+
+
+class ProxyTransport(xmlrpc.client.Transport):
+    """"""
+
+    def set_proxy(self, host, port=None, headers=None):
+        self.proxy = host, port
+        self.proxy_headers = headers
+
+    def make_connection(self, host):
+        connection = http.client.HTTPConnection(*self.proxy)
+        connection.set_tunnel(host, headers=self.proxy_headers)
+        self._connection = host, connection
+        return connection
 
 
 class Cobbler:
@@ -13,10 +28,14 @@ class Cobbler:
         kernel_options_post=""
     )
 
-    def __init__(self, url: str, credential: tuple):
+    kargs_tpl = ('inst.ks={ksfile_url} '
+                 '{extra_params}')
+
+    def __init__(self, url: str, credential: tuple, http_proxy: dict = None):
         self.url = url
         self.credential = credential
         self.token = None
+        self.http_proxy = http_proxy
 
     def __enter__(self):
         self.login()
@@ -27,7 +46,12 @@ class Cobbler:
 
     @property
     def proxy(self):
-        return xmlrpc.client.ServerProxy(self.url)
+        if self.http_proxy is not None:
+            transport = ProxyTransport()
+            transport.set_proxy(self.http_proxy["host"], self.http_proxy["port"])
+            return xmlrpc.client.ServerProxy(self.url, transport=transport)
+        else:
+            return xmlrpc.client.ServerProxy(self.url)
 
     @property
     def profiles(self):

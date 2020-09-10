@@ -46,3 +46,9 @@ class Beaker(object):
     def release(self, bkr_name):
         """pass"""
         return self._exec_cmd('release', dict(bkr_name=bkr_name))
+
+
+def check_beaker_client_ready():
+    """"""
+    # TODO
+    pass
