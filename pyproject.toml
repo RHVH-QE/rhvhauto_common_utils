@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rhvhauto-common-utils"
-version = "0.1.15"
+version = "0.1.16"
 description = "common utils for rhvh auto project"
 authors = ["dracher <dracher@gmail.com>"]
 readme = 'README.md'
@@ -9,7 +9,6 @@ repository = "https://github.com/RHVH-QE/rhvhauto_common_utils"
 [tool.poetry.dependencies]
 python = "^3.7"
 ovirt-engine-sdk-python="^4.4.4"
-mako = "^1.1.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

@@ -4,7 +4,7 @@ import xmlrpc.client
 
 
 class ProxyTransport(xmlrpc.client.Transport):
-    """"""
+    """add proxy support"""
 
     def set_proxy(self, host, port=None, headers=None):
         self.proxy = host, port
