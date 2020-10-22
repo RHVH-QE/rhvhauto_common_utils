@@ -36,13 +36,16 @@ class BaseRhvAPI:
     # =========================================================
     def add_data_center(self, name, **kwargs):
         """create datacenter with local storage, and wait for the reponse
-        >>> api = BaseRhvAPI("https://fqdn/ovirt-engine/api")
-        >>> api.add_data_center("dc_name", local=True, wait=True)
+        >>> api = BaseRhvAPI("https://vm-198-170.lab.eng.pek2.redhat.com/ovirt-engine/api")
+        >>> api.add_data_center("dc_name", local=False, wait=True, major_ver=4, minor_ver=4)
         """
         try:
             dc = self.dcs_srv.add(types.DataCenter(
                 name=name,
-                local=kwargs.get('local')
+                local=kwargs.get('local'),
+                version=types.Version(
+                    major=kwargs.get('major_ver'),
+                    minor=kwargs.get('minor_ver'))
             ), wait=True)
             return dc.id
         except sdk.Error as e:
@@ -69,6 +72,7 @@ class BaseRhvAPI:
     def add_cluster(self, name: str, **kwargs) -> str:
         cpu_type = kwargs.get('cpu_type')
         cluster_level = kwargs.get('cluster_level', '4.4')
+        major_ver, minor_ver = cluster_level.split('.')
         if cpu_type not in self.cluster_supported_cpu_types(level=cluster_level):
             raise RuntimeError(f"{cpu_type} is not on supported list")
 
@@ -83,6 +87,7 @@ class BaseRhvAPI:
                     data_center=types.DataCenter(
                         name=kwargs.get('data_center_name')
                     ),
+                    version=types.Version(major=major_ver, minor=minor_ver),
                     management_network=types.Network(name=kwargs.get("nw_name", "ovirtmgmt"))
                 ), wait=True
             )
